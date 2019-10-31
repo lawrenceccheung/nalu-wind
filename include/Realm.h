@@ -87,6 +87,7 @@ struct ActuatorMetaSimple;
 struct ActuatorBulkSimple;
 class ABLForcingAlgorithm;
 class BdyLayerStatistics;
+class SyntheticTurbulence;
 
 class TensorProductQuadratureRule;
 class LagrangeBasis;
@@ -458,6 +459,7 @@ class Realm {
   std::shared_ptr<ActuatorBulkSimple> actuatorBulkSimple_;
   ABLForcingAlgorithm *ablForcingAlg_;
   BdyLayerStatistics* bdyLayerStats_{nullptr};
+  std::unique_ptr<SyntheticTurbulence> synthTurbForcing_;
   std::unique_ptr<MeshMotionAlg> meshMotionAlg_;
   std::unique_ptr<MeshTransformationAlg> meshTransformationAlg_;
 
