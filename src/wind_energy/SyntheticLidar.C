@@ -203,6 +203,15 @@ LidarLineOfSite::determine_line_of_site_info(const YAML::Node& node)
   probeInfo->tailCoordinates_.resize(nsamples_);
   probeInfo->nodeVector_.resize(nsamples_);
   probeInfo->part_.resize(nsamples_);
+  // more resizing
+  probeInfo->geomType_.resize(nsamples_);
+  probeInfo->cornerCoordinates_.resize(nsamples_);
+  probeInfo->edge1Vector_.resize(nsamples_);
+  probeInfo->edge2Vector_.resize(nsamples_);
+  probeInfo->edge1NumPoints_.resize(nsamples_);
+  probeInfo->edge2NumPoints_.resize(nsamples_);
+  probeInfo->offsetDir_.resize(nsamples_);
+  probeInfo->offsetSpacings_.resize(nsamples_);
 
   const int numProcs = NaluEnv::self().parallel_size();
   const int divProcProbe = std::max(numProcs/nsamples_, numProcs);
@@ -210,6 +219,8 @@ LidarLineOfSite::determine_line_of_site_info(const YAML::Node& node)
   for (int ilos = 0; ilos < nsamples_; ilos++) {
     const double lidarTime = scanTime_ / (double)nsamples_ * ilos;
     Segment seg = segGen.generate_path_segment(lidarTime);
+
+    probeInfo->geomType_[ilos] = DataProbeGeomType::LINEOFSITE;
 
     probeInfo->processorId_[ilos] = divProcProbe > 0 ? ilos % divProcProbe : 0;
     probeInfo->partName_[ilos] = name_ + "_" + std::to_string(ilos);
