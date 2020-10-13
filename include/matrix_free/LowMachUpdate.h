@@ -70,11 +70,12 @@ public:
     Kokkos::View<gid_type*>);
 
   LowMachUpdate(
-    stk::mesh::BulkData&,
-    Teuchos::ParameterList,
-    Teuchos::ParameterList,
-    Teuchos::ParameterList,
-    stk::mesh::Selector,
+    stk::mesh::BulkData& bulk_in,
+    Teuchos::ParameterList params_mom,
+    Teuchos::ParameterList params_cont,
+    Teuchos::ParameterList params_grad,
+    stk::mesh::Selector active,
+    stk::mesh::Selector dirichlet_wall,
     const Tpetra::Map<>& owned,
     const Tpetra::Map<>& owned_and_shared,
     Kokkos::View<const lid_type*> elids);
@@ -97,7 +98,7 @@ public:
   void gather_velocity();
   void gather_pressure();
   void gather_grad_p();
-  void update_transport_coefficients();
+  void update_transport_coefficients(GradTurbModel model);
   void update_advection_metric(double dt);
 
   double provide_norm() const { return residual_norm_[VEL]; };
@@ -125,9 +126,12 @@ public:
 private:
   stk::mesh::BulkData& bulk_;
   const stk::mesh::Selector active_;
+  const stk::mesh::Selector dirichlet_;
   const StkToTpetraMaps linsys_;
   const Tpetra::Export<> exporter_;
   const const_elem_offset_view<p> offsets_;
+  const const_face_offset_view<p> exposed_face_offsets_;
+  const const_node_offset_view dirichlet_offsets_;
 
   LowMachGatheredFieldManager<p> field_gather_;
   LowMachPostProcessP<p> post_process_;

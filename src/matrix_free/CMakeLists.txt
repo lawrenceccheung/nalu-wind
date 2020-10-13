@@ -26,6 +26,7 @@ target_sources(nalu PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/LinearDiffusionMetric.C
    ${CMAKE_CURRENT_SOURCE_DIR}/LinearVolume.C
    ${CMAKE_CURRENT_SOURCE_DIR}/LobattoQuadratureRule.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/LocalDualNodalVolume.C
    ${CMAKE_CURRENT_SOURCE_DIR}/LowMachFields.C
    ${CMAKE_CURRENT_SOURCE_DIR}/LowMachGatheredFieldManager.C
    ${CMAKE_CURRENT_SOURCE_DIR}/LowMachUpdate.C
@@ -36,8 +37,8 @@ target_sources(nalu PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/MomentumOperator.C
    ${CMAKE_CURRENT_SOURCE_DIR}/MomentumSolutionUpdate.C
    ${CMAKE_CURRENT_SOURCE_DIR}/NodeOrderMap.C
-   ${CMAKE_CURRENT_SOURCE_DIR}/ScalarDirichletBC.C
    ${CMAKE_CURRENT_SOURCE_DIR}/ScalarFluxBC.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/StrongDirichletBC.C
    ${CMAKE_CURRENT_SOURCE_DIR}/StkSimdConnectivityMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/StkSimdNodeConnectivityMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/StkSimdFaceConnectivityMap.C
@@ -46,4 +47,5 @@ target_sources(nalu PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/StkToTpetraLocalIndices.C
    ${CMAKE_CURRENT_SOURCE_DIR}/StkToTpetraMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/SparsifiedEdgeLaplacian.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/TransportCoefficients.C
 )

@@ -38,6 +38,7 @@ struct momentum_residual_t
     Kokkos::Array<double, 3> gammas,
     const_elem_offset_view<p> offsets,
     const_vector_view<p> xc,
+    const_scalar_view<p> rho,
     const_scalar_view<p> visc,
     const_scalar_view<p> vm1,
     const_scalar_view<p> vp0,
@@ -46,6 +47,7 @@ struct momentum_residual_t
     const_vector_view<p> up0,
     const_vector_view<p> up1,
     const_vector_view<p> gp,
+    const_vector_view<p> force,
     const_scs_scalar_view<p> mdot,
     tpetra_view_type yout);
 };

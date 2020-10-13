@@ -29,6 +29,7 @@ target_sources(${utest_ex_name} PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestLinearAdvectionMetric.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestLinearVolume.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestLocalArray.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestLocalDualNodalVolume.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestLowMachUpdate.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestMatrixFreeSolver.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestMomentumDiagonal.C
@@ -36,11 +37,12 @@ target_sources(${utest_ex_name} PRIVATE
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestMomentumJacobiOperator.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestMomentumOperator.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestMomentumSolutionUpdate.C
-   ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestScalarDirichletBC.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestScalarFluxBC.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestStrongDirichletBC.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestSparsifiedEdgeLaplacian.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestStkSimdConnectivityMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestStkSimdNodeConnectivityMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestStkSimdFaceConnectivityMap.C
    ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestStkSimdGatheredElementData.C
+   ${CMAKE_CURRENT_SOURCE_DIR}/UnitTestTransportCoefficients.C
 )
