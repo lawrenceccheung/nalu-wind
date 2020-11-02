@@ -523,12 +523,12 @@ void SyntheticTurbulence::update()
       // v_n in Eq. 10
       const double vMag = std::sqrt(velG[0] * velG[0] + velG[1] * velG[1] + velG[2] * velG[2]);
       // (V_n + 1/2 v_n) in Eq. 10
-      const double vMagTotal = ((*windProfile_)(xyzG[2]) + 0.5 * vMag);
+      const double vMagTotal = ((*windProfile_)(xyzG[0]) + 0.5 * vMag);
       // Smearing factor (see Eq. 11). The normal direction to the grid is the
       // x-axis of the local reference frame by construction
       const double term1 = xyzL[0] / epsilon_;
       const double eta = std::exp(-(term1 * term1)) * gaussScaling_;
-      const double factor = vMagTotal * eta / gridSpacing_;
+      const double factor = vMagTotal * eta;
 
       // Defer density and volume scaling to the nodal assembly algorithm
       forcing[0] = velG[0] * factor;
