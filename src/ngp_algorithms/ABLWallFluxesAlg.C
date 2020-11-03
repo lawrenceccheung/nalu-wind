@@ -60,7 +60,8 @@ void compute_fluxes
     const int algorithmType,
     double& frictionVelocity,
     double& temperatureFlux,
-    double& Tsurface
+    double& Tsurface,
+    double& Phi_h_out
 )
 {
 
@@ -70,6 +71,7 @@ void compute_fluxes
 
   // Enter the iterative solver loop and iterate until convergence
   frictionVelocity = 0.0;
+  Phi_h_out    = 0.0;
   double frictionVelocityOld = 1.0E10;
   double temperatureFluxOld = 1.0E10;
   double L = 1.0E10;
@@ -107,6 +109,7 @@ void compute_fluxes
     // Recompute Psi_h and Psi_m.
     Psi_h = Psi_h_func(zp/L, Psi_h_factor);
     Psi_m = Psi_m_func(zp/L, Psi_m_factor);
+    Phi_h_out = std::log(zp / z0) - Psi_h;
 
     // Compute changes in solution.
     frictionVelocityDelta = std::abs(frictionVelocity - frictionVelocityOld);
@@ -478,7 +481,15 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
         DoubleType sgnDeltaTheta = stk::math::if_then_else((thetaiAvg - fluctuatingTempRef) >= 0.0, 1.0, -1.0);
         DoubleType term1 = sgnDeltaTheta*stk::math::max(((1.0-MoengFactor)*SAvg + MoengFactor*S)*stk::math::abs(thetaiAvg - fluctuatingTempRef),eps);
         DoubleType term2 = SAvg*(thetai - thetaiAvg);
-        DoubleType term3 = sgnDeltaTheta*stk::math::max((SAvg * stk::math::abs((thetaiAvg - fluctuatingTempRef))),eps);
+        //DoubleType term3 = sgnDeltaTheta*stk::math::max((SAvg * stk::math::abs((thetaiAvg - fluctuatingTempRef))),eps);
+	DoubleType term3 = SAvg;
+
+	// Calculate
+	//                (U*(<theta_1> - theta_0) + <U>*(theta_1 - <theta_1>))
+	//   qSurf_calc = -----------------------------------------------------
+	//                                       <U>
+	// So that
+	//   (tau_{theta-z})_0 = utau*kappa/phi_h * qSurf_calc
         qSurf_calc = (1.0 - avgFactor)*1.0 + (avgFactor*fluctuationFactor)*((term1+term2)/term3);
 
         DoubleType u_MO = (1.0 - avgFactor)*uOppNodeTangential + (avgFactor)*velMagAverage;
@@ -498,6 +509,7 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
           // Compute fluxes with algorithm 1.
           DblType utau_alg1 = 0.0;
           DblType Tsurf_alg1 = 0.0;
+	  DblType Phi_h_alg1 = 0.0;
           DblType givenFlux = currFlux;
           int algType = 1;
           if (stk::simd::get_data(q_MO, si) < -eps)
@@ -519,7 +531,8 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
               algType,
               utau_alg1,
               givenFlux,
-              Tsurf_alg1
+              Tsurf_alg1,
+	      Phi_h_alg1
             );
           }
           else if (stk::simd::get_data(q_MO, si) > eps)
@@ -541,7 +554,8 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
               algType,
               utau_alg1,
               givenFlux,
-              Tsurf_alg1
+              Tsurf_alg1,
+	      Phi_h_alg1
             );
           }
           else
@@ -550,6 +564,7 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
                         stk::simd::get_data(u_MO, si) /
                         stk::simd::get_data(term, si);
             Tsurf_alg1 = stk::simd::get_data(temp_MO, si);
+	    Phi_h_alg1 = 0.0;
           }
 
 
@@ -557,6 +572,7 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
           DblType utau_alg2 = 0.0;
           DblType qSurf_alg2 = 0.0;
           DblType givenSurfaceTemperature = currSurfaceTemperature;
+	  DblType Phi_h_alg2 = 0.0;
           algType = 2;
           if (stk::simd::get_data(temp_MO, si) - currSurfaceTemperature > eps)
           {
@@ -577,7 +593,8 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
               algType,
               utau_alg2,
               qSurf_alg2,
-              givenSurfaceTemperature
+              givenSurfaceTemperature,
+	      Phi_h_alg2
             );
           }
           else if (stk::simd::get_data(temp_MO, si) - currSurfaceTemperature < -eps)
@@ -599,7 +616,8 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
               algType,
               utau_alg2,
               qSurf_alg2,
-              givenSurfaceTemperature
+              givenSurfaceTemperature,
+	      Phi_h_alg2
             );
           }
           else
@@ -608,11 +626,17 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
                         stk::simd::get_data(u_MO, si) /
                         stk::simd::get_data(term, si);
             qSurf_alg2 = 0.0;
+	    Phi_h_alg2 = 0.0;
           }
+
+	  // Compute inverse Phi_h
+	  // - Make sure if Phi_h_alg1,2 = 0.0, then inverse Phi_h is zero
+	  DblType InversePhi_h_alg1 = (stk::math::abs(Phi_h_alg1) > eps)? 1.0/Phi_h_alg1 : 0.0;
+	  DblType InversePhi_h_alg2 = (stk::math::abs(Phi_h_alg2) > eps)? 1.0/Phi_h_alg2 : 0.0;
 
           // Combine the fluxes computed with the two different algorithms based on the user-selected weighting.
           utau =   (1.0 - (currWeight - 1.0)) * utau_alg1  + (currWeight - 1.0) * utau_alg2;
-          qSurf = ((1.0 - (currWeight - 1.0)) * currFlux   + (currWeight - 1.0) * qSurf_alg2) * stk::simd::get_data(rhoIp, si) * stk::simd::get_data(CpIp, si);
+	  qSurf =  ((1.0 - (currWeight - 1.0)) * (utau_alg1*InversePhi_h_alg1)   + (currWeight - 1.0) * (utau_alg2*InversePhi_h_alg2)) * stk::simd::get_data(kappa, si)*stk::simd::get_data(rhoIp, si) * stk::simd::get_data(CpIp, si);
 
           // Compute the fluctuating flux fields.
           for (int d = 0; d < BcAlgTraits::nDim_; ++d) {
