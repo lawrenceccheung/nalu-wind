@@ -109,7 +109,6 @@ void compute_fluxes
     // Recompute Psi_h and Psi_m.
     Psi_h = Psi_h_func(zp/L, Psi_h_factor);
     Psi_m = Psi_m_func(zp/L, Psi_m_factor);
-    Phi_h_out = std::log(zp / z0) - Psi_h;
 
     // Compute changes in solution.
     frictionVelocityDelta = std::abs(frictionVelocity - frictionVelocityOld);
@@ -124,6 +123,9 @@ void compute_fluxes
     // Add to the iteration count.
     iter++;
   }
+  // Output Phi_h_out
+  Phi_h_out = std::log(zp / z0) - Psi_h;
+
 }
 
 }
@@ -481,7 +483,6 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
         DoubleType sgnDeltaTheta = stk::math::if_then_else((thetaiAvg - fluctuatingTempRef) >= 0.0, 1.0, -1.0);
         DoubleType term1 = sgnDeltaTheta*stk::math::max(((1.0-MoengFactor)*SAvg + MoengFactor*S)*stk::math::abs(thetaiAvg - fluctuatingTempRef),eps);
         DoubleType term2 = SAvg*(thetai - thetaiAvg);
-        //DoubleType term3 = sgnDeltaTheta*stk::math::max((SAvg * stk::math::abs((thetaiAvg - fluctuatingTempRef))),eps);
 	DoubleType term3 = SAvg;
 
 	// Calculate
