@@ -10,6 +10,7 @@
 #include "wind_energy/SyntheticTurbulence.h"
 #include "NaluEnv.h"
 #include "Realm.h"
+#include "NaluParsing.h"
 #include "master_element/TensorOps.h"
 
 #include "netcdf.h"

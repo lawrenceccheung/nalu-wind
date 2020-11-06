@@ -7,6 +7,7 @@
 
 #include "node_kernels/MomentumSynthTurbNodeKernel.h"
 #include "ngp_utils/NgpFieldUtils.h"
+#include "Realm.h"
 
 namespace sierra {
 namespace nalu {
