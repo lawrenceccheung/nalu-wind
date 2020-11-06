@@ -483,7 +483,7 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
         DoubleType sgnDeltaTheta = stk::math::if_then_else((thetaiAvg - fluctuatingTempRef) >= 0.0, 1.0, -1.0);
         DoubleType term1 = sgnDeltaTheta*stk::math::max(((1.0-MoengFactor)*SAvg + MoengFactor*S)*stk::math::abs(thetaiAvg - fluctuatingTempRef),eps);
         DoubleType term2 = SAvg*(thetai - thetaiAvg);
-	DoubleType term3 = SAvg;
+	DoubleType term3 = sgnDeltaTheta*SAvg;
 
 	// Calculate
 	//                (U*(<theta_1> - theta_0) + <U>*(theta_1 - <theta_1>))
@@ -638,6 +638,9 @@ void ABLWallFluxesAlg<BcAlgTraits>::execute()
           // Combine the fluxes computed with the two different algorithms based on the user-selected weighting.
           utau =   (1.0 - (currWeight - 1.0)) * utau_alg1  + (currWeight - 1.0) * utau_alg2;
 	  qSurf =  ((1.0 - (currWeight - 1.0)) * (utau_alg1*InversePhi_h_alg1)   + (currWeight - 1.0) * (utau_alg2*InversePhi_h_alg2)) * stk::simd::get_data(kappa, si)*stk::simd::get_data(rhoIp, si) * stk::simd::get_data(CpIp, si);
+
+	  // Add negative sign in front of qSurf because <\tau_{\theta z}> = -Q
+	  qSurf = -qSurf;
 
           // Compute the fluctuating flux fields.
           for (int d = 0; d < BcAlgTraits::nDim_; ++d) {
